@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>山东司法警官职业学院 · 反诈宣传智能文案生成器</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231d4ed8'%3E%3Cpath d='M12 2L4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3z'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --police-900:#0f2740;
+    --police-800:#16324f;
+    --police-700:#1d4066;
+    --blue-600:#1d4ed8;
+    --blue-50:#eff4ff;
+    --blue-100:#dbe7ff;
+    --red-600:#c8102e;
+    --red-50:#fef2f3;
+    --amber-500:#d97706;
+    --bg:#f2f4f8;
+    --card:#ffffff;
+    --line:#e3e8f0;
+    --ink:#0f1f33;
+    --ink-2:#5b6b80;
+    --ink-3:#8a99ad;
+    --radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Source Han Sans SC",system-ui,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.65;
+    font-size:15px;
+  }
+  /* ===== 顶栏 ===== */
+  .topbar{
+    background:linear-gradient(180deg,var(--police-800),var(--police-900));
+    color:#fff;padding:14px 20px;
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  }
+  .shield{width:40px;height:40px;flex:none;background:#fff;border-radius:50%;padding:3px;box-shadow:0 0 0 1.5px rgba(255,255,255,.35)}
+  .topbar h1{font-size:17px;font-weight:700;letter-spacing:.5px}
+  .topbar .sub{font-size:12px;color:#a9bdd6;margin-top:1px}
+  .badge{
+    margin-left:auto;font-size:12px;padding:4px 10px;border-radius:999px;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#dbe7ff;
+  }
+  /* ===== 布局 ===== */
+  .wrap{max-width:1280px;margin:0 auto;padding:18px 16px 60px}
+  .layout{display:grid;grid-template-columns:1fr;gap:16px}
+  @media (min-width:960px){
+    .layout{grid-template-columns:420px 1fr;align-items:start}
+  }
+  .panel{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px;
+  }
+  .panel + .panel{margin-top:14px}
+  .step-label{
+    display:flex;align-items:center;gap:8px;
+    font-size:13px;font-weight:700;color:var(--police-800);margin-bottom:10px;
+  }
+  .step-num{
+    width:20px;height:20px;border-radius:6px;background:var(--police-800);color:#fff;
+    display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
+  }
+  /* 场景卡片 */
+  .scene-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .scene-card{
+    border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;
+    background:#fff;transition:all .15s ease;text-align:left;font-family:inherit;
+  }
+  .scene-card .name{font-size:14px;font-weight:600;color:var(--ink)}
+  .scene-card .tag{font-size:11px;color:var(--ink-3);margin-top:2px}
+  .scene-card:hover{border-color:var(--blue-600)}
+  .scene-card.active{border-color:var(--blue-600);background:var(--blue-50);box-shadow:0 0 0 2px var(--blue-100)}
+  .scene-card.active .name{color:var(--blue-600)}
+  /* 胶囊 */
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    border:1.5px solid var(--line);background:#fff;border-radius:999px;
+    padding:8px 14px;font-size:13px;cursor:pointer;font-family:inherit;color:var(--ink);
+    transition:all .15s ease;min-height:40px;
+  }
+  .chip:hover{border-color:var(--blue-600)}
+  .chip.active{border-color:var(--blue-600);background:var(--blue-600);color:#fff;font-weight:600}
+  /* CTA */
+  .cta{
+    width:100%;margin-top:16px;border:none;border-radius:10px;cursor:pointer;
+    background:var(--blue-600);color:#fff;font-size:16px;font-weight:700;
+    padding:14px;letter-spacing:2px;font-family:inherit;
+    transition:background .15s ease;
+  }
+  .cta:hover{background:#1a44c2}
+  .cta:disabled{background:#7c93c9;cursor:wait}
+  /* 结果区 */
+  .result-head{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;
+  }
+  .result-title{font-size:16px;font-weight:700;color:var(--police-800)}
+  .result-meta{display:flex;flex-wrap:wrap;gap:6px}
+  .meta-pill{
+    font-size:11px;padding:3px 9px;border-radius:999px;background:var(--blue-50);
+    color:var(--blue-600);border:1px solid var(--blue-100);
+  }
+  .meta-pill.red{background:var(--red-50);color:var(--red-600);border-color:#fbd0d8}
+  .result-box{
+    background:#fbfcfe;border:1px solid var(--line);border-radius:10px;
+    padding:20px;min-height:340px;position:relative;
+  }
+  .result-box .doc{white-space:pre-wrap;font-size:14.5px;line-height:1.9;color:#1c2b3f}
+  .result-box .doc .doc-title{font-size:17px;font-weight:700;color:var(--police-800);display:block;margin-bottom:10px;text-align:center;line-height:1.5}
+  .result-box .doc .doc-hot{color:var(--red-600);font-weight:700}
+  .result-box .doc .doc-hotline{color:var(--red-600);font-weight:700;letter-spacing:1px}
+  .result-actions{display:flex;gap:8px;margin-top:14px;justify-content:flex-end}
+  .btn-copy{
+    border:1.5px solid var(--blue-600);background:#fff;color:var(--blue-600);
+    border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;
+    display:inline-flex;align-items:center;gap:6px;transition:all .15s ease;min-height:40px;
+  }
+  .btn-copy:hover{background:var(--blue-50)}
+  .btn-copy.done{border-color:#15803d;color:#15803d;background:#f0fdf4}
+  /* 说明脚注 */
+  .footnote{margin-top:14px;font-size:12px;color:var(--ink-3);line-height:1.7}
+  /* 打字光标 */
+  .caret{display:inline-block;width:2px;height:1em;background:var(--blue-600);vertical-align:-2px;animation:blink .8s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  /* 提示 toast */
+  .toast{
+    position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);
+    background:var(--police-900);color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;
+    opacity:0;pointer-events:none;transition:all .25s ease;z-index:99;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  /* 表情包浮层 */
+  .panel{position:relative}
+  .meme-overlay{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    background:rgba(15,39,64,.45);border-radius:var(--radius);z-index:20;
+    opacity:0;pointer-events:none;transition:opacity .3s ease;
+  }
+  .meme-overlay.show{opacity:1;pointer-events:auto}
+  .meme-card{
+    width:min(300px,80%);background:#fff;border-radius:14px;padding:10px;
+    box-shadow:0 18px 50px rgba(0,0,0,.35);transform:scale(.3);
+  }
+  .meme-card img{width:100%;display:block;border-radius:8px}
+  .meme-overlay.show .meme-card{animation:memePop .55s cubic-bezier(.34,1.56,.64,1) forwards}
+  @keyframes memePop{
+    0%{transform:scale(.3) rotate(-6deg)}
+    60%{transform:scale(1.08) rotate(2deg)}
+    100%{transform:scale(1) rotate(0)}
+  }
+  .features{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+  .feat{font-size:12px;color:var(--ink-2);background:#f6f8fc;border-radius:8px;padding:8px 10px;line-height:1.5}
+  .feat b{color:var(--police-800)}
+
+  /* ===== 欢迎启动页 ===== */
+  .welcome{
+    position:fixed;inset:0;z-index:100;
+    background:linear-gradient(160deg,var(--police-800),var(--police-900));
+    display:flex;align-items:center;justify-content:center;
+    padding:24px;overflow-y:auto;
+    transition:opacity .45s ease;
+  }
+  .welcome.hide{opacity:0;pointer-events:none}
+  .welcome-inner{max-width:640px;width:100%;text-align:center;color:#fff}
+  .logo-wrap{
+    position:relative;display:inline-block;cursor:pointer;
+    padding:14px;
+  }
+  .welcome-logo{
+    width:96px;height:96px;background:#fff;border-radius:50%;padding:7px;
+    box-shadow:0 0 0 2px rgba(255,255,255,.25),0 12px 30px rgba(0,0,0,.3);
+    transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s ease;
+    display:block;
+  }
+  .logo-wrap:hover .welcome-logo,
+  .logo-wrap.hover .welcome-logo{
+    transform:scale(1.18);
+    box-shadow:
+      0 0 0 2px rgba(96,165,250,.5),
+      0 0 24px 6px rgba(59,130,246,.65),
+      0 0 60px 14px rgba(37,99,235,.45),
+      0 14px 34px rgba(0,0,0,.4);
+  }
+  .logo-projection{
+    position:absolute;left:50%;top:100%;
+    transform:translateX(-50%) translateY(-6px) scale(.85);
+    font-size:22px;font-weight:700;letter-spacing:8px;white-space:nowrap;
+    color:#bfdbfe;
+    text-shadow:0 0 10px rgba(59,130,246,.95),0 0 24px rgba(59,130,246,.8),0 0 44px rgba(37,99,235,.7);
+    opacity:0;pointer-events:none;
+    transition:opacity .35s ease,transform .35s cubic-bezier(.34,1.56,.64,1);
+  }
+  .logo-wrap:hover .logo-projection,
+  .logo-wrap.hover .logo-projection{
+    opacity:1;
+    transform:translateX(-50%) translateY(8px) scale(1);
+  }
+  .welcome-inner h2{font-size:26px;font-weight:700;margin-top:26px;letter-spacing:1px}
+  .welcome-sub{font-size:13px;color:#a9bdd6;margin-top:8px}
+  .welcome-feats{
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:28px 0;
+  }
+  .wfeat{
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+    border-radius:10px;padding:12px 10px;font-size:13px;line-height:1.6;color:#dbe7ff;
+  }
+  .wfeat b{display:block;font-size:15px;color:#fff;margin-bottom:3px}
+  .logo-hint{font-size:12px;color:#7d94b3;letter-spacing:2px;margin-bottom:14px}
+  .welcome-hot{margin-top:18px;font-size:13px;color:#a9bdd6;letter-spacing:2px}
+  .welcome-hot b{color:#ff8a9a;font-size:16px;letter-spacing:1px}
+  @media (max-width:500px){
+    .welcome-inner h2{font-size:21px}
+    .welcome-feats{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== 欢迎启动页 ===== -->
+<div class="welcome" id="welcome">
+  <div class="welcome-inner">
+    <div class="logo-wrap" id="logoWrap">
+      <img class="welcome-logo" id="welcomeLogo" src="assets/school-logo.png" alt="山东司法警官职业学院校徽">
+      <div class="logo-projection">反诈宣传</div>
+    </div>
+    <h2>反诈宣传智能文案生成器</h2>
+    <p class="welcome-sub">山东司法警官职业学院 · 校园反诈宣传辅助工具</p>
+    <div class="welcome-feats">
+      <div class="wfeat"><b>6 类高发骗局</b>刷单、客服、裸聊、公检法、杀猪盘、养老诈骗</div>
+      <div class="wfeat"><b>4 类人群话术</b>学生、长辈、商户、居民，自动调整重点</div>
+      <div class="wfeat"><b>4 种发布形式</b>朋友圈、口播稿、海报标语、社区通告</div>
+      <div class="wfeat"><b>4 种语气风格</b>标准版、方言、精简、严肃通告一键切换</div>
+    </div>
+    <div class="logo-hint">点击校徽进入系统</div>
+    <p class="welcome-hot">全国反诈专线 <b>96110</b></p>
+  </div>
+</div>
+
+<header class="topbar">
+  <img class="shield" src="assets/school-logo.png" alt="山东司法警官职业学院校徽">
+  <div>
+    <h1>山东司法警官职业学院 · 反诈宣传智能文案生成器</h1>
+    <div class="sub">校园反诈宣传辅助工具 · 点选场景，一键生成朋友圈 / 短视频 / 海报 / 通告文案</div>
+  </div>
+  <span class="badge">警校宣传原型 v1.0</span>
+</header>
+
+<main class="wrap">
+  <div class="layout">
+    <!-- ========== 左：配置区 ========== -->
+    <section>
+      <div class="panel">
+        <div class="step-label"><span class="step-num">1</span>选择诈骗场景</div>
+        <div class="scene-grid" id="sceneGrid"></div>
+      </div>
+
+      <div class="panel">
+        <div class="step-label"><span class="step-num">2</span>目标人群</div>
+        <div class="chips" id="audChips"></div>
+      </div>
+
+      <div class="panel">
+        <div class="step-label"><span class="step-num">3</span>发布形式</div>
+        <div class="chips" id="formChips"></div>
+      </div>
+
+      <div class="panel">
+        <div class="step-label"><span class="step-num">4</span>语气风格</div>
+        <div class="chips" id="toneChips"></div>
+      </div>
+
+      <button class="cta" id="genBtn">一键生成文案</button>
+
+      <div class="features">
+        <div class="feat"><b>6类高发骗局</b><br>覆盖刷单、客服、裸聊、公检法、杀猪盘、养老诈骗</div>
+        <div class="feat"><b>4类人群话术</b><br>老人、学生、商户、居民，自动调整称呼与重点</div>
+        <div class="feat"><b>4种发布形式</b><br>朋友圈、口播稿、海报标语、社区通告一键切换</div>
+        <div class="feat"><b>4种语气</b><br>标准版、方言口语、精简金句、严肃通告</div>
+      </div>
+    </section>
+
+    <!-- ========== 右：结果区 ========== -->
+    <section class="panel">
+      <div class="result-head">
+        <span class="result-title">生成结果</span>
+        <div class="result-meta" id="metaPills"></div>
+      </div>
+      <div class="result-box">
+        <div class="doc" id="doc"></div>
+      </div>
+      <div class="result-actions">
+        <button class="btn-copy" id="copyBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          复制文案
+        </button>
+      </div>
+
+      <!-- 表情包浮层 -->
+      <div class="meme-overlay" id="memeOverlay">
+        <div class="meme-card">
+          <img src="assets/brave-dog.jpg" alt="你胆子真是肥嘟嘟的">
+        </div>
+      </div>
+
+      <!-- 生成音效 -->
+      <audio id="genSound" src="assets/generate-sound.mp3" preload="auto"></audio>
+      <div class="footnote">
+        说明：本页面为产品原型演示，文案由预置反诈话术模板根据所选条件组合生成；接入大模型后可根据本地发案数据、案例细节动态扩写。
+      </div>
+    </section>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==================== 话术数据 ==================== */
+const SCENES = {
+  brush:{
+    name:"校园刷单诈骗", short:"刷单返利",
+    hook:"骗子通过QQ群、微信群、抖音私信发布“动动手指、日赚三百”的刷单广告。第一单小额任务立刻返利5到10元，骗取信任后诱导你下载所谓“专属任务APP”，再以“联单任务未完成”“系统卡单需充值解冻”为由，让学生反复转账，少则几千、多则数万，最后被拉黑失联。",
+    points:["刷单本身就是违规行为，永远不要参与","小额返利是诱饵，垫资做任务就是送钱","任务群里主动搭话的“战友”大多是托"],
+    morePoints:["日赚三百的广告，赚的是你的本金不是佣金","凡是让你先掏钱的兼职，都是诈骗","下载非官方APP做任务，等于把钱直接交出去","“系统卡单”是话术，充再多钱也不会返款"]
+  },
+  refund:{
+    name:"冒充客服退款", short:"客服退款",
+    hook:"骗子非法获取你的购物记录后，冒充电商平台或快递客服，称“商品质量有问题”“快递弄丢了”可双倍理赔。随后引导你点击陌生链接、下载屏幕共享软件，或让你在借呗、花呗等平台贷款后转账到所谓“验资账户”，等你反应过来，贷款已经全部进了骗子口袋。",
+    points:["正规客服不会主动打电话给你退款","凡是让你贷款、转账的“客服”一律是骗子","开启屏幕共享，等于把手机直接交给骗子"],
+    morePoints:["退款只会原路返回，不会让你先转账","陌生人发来的理赔链接，一律不要点","客服要你加QQ、加微信，一定是骗子","报得出你订单信息的，也可能是买了数据的骗子"]
+  },
+  nude:{
+    name:"裸聊敲诈勒索", short:"裸聊敲诈",
+    hook:"骗子通过交友软件匹配“美女”，嘘寒问暖后诱导你下载偷拍木马APP并进行裸聊。随后录下不雅视频，窃取你的通讯录，威胁“不打钱就把视频群发给你的亲戚、同事和老师”，逼迫你转账。更可怕的是，敲诈会一次次加码、越要越多，没有尽头。",
+    points:["陌生“美女”主动加好友，背后必是男骗子","裸聊后只要给过一次钱，就会被反复敲诈","遭遇勒索不要转账，立即保留证据并报警"],
+    morePoints:["屏幕另一端的“美女”，可能是一整个诈骗团伙","木马APP能偷走你的通讯录，不是吓唬你","被勒索后第一时间报警，警方会保护你","给钱换不来视频删除，只会换来下一轮勒索"]
+  },
+  police:{
+    name:"冒充公检法", short:"公检法诈骗",
+    hook:"骗子冒充“公安局”“检察院”工作人员，准确报出你的姓名和身份证号，称你“涉嫌洗钱、非法集资或快递藏毒”，要求你“配合调查、严格保密”，不许挂电话、不许告诉家人。最后以“审查资金”为由，让你把全部存款转到所谓“安全账户”。",
+    points:["公检法机关根本没有所谓“安全账户”","办案绝不会电话要求你转账汇款","让你“保密”“别告诉家人”的电话就是诈骗"],
+    morePoints:["真警察办案会当面找你，不会在电话里审案","通缉令不会通过电话发给你看","让你去酒店开房接电话的，百分百是诈骗","能报出你身份证号，不代表对方就是警察"]
+  },
+  pig:{
+    name:"杀猪盘（网恋投资）", short:"网恋杀猪盘",
+    hook:"骗子在婚恋、社交平台把自己包装成“高富帅”“白富美”，每天嘘寒问暖、确立恋爱关系。时机成熟后，以“知道内部投资渠道”“博彩平台有漏洞”为由，带你进入虚假平台充值。前期小额确实可以提现，等你放下防备投入大额资金，平台随即无法打开，恋人也消失无踪。",
+    points:["网恋对象带你投资理财，百分百是杀猪盘","小额能提现，只是为了钓出你后面的大钱","没见过面就要你出钱的“恋人”，都是骗子"],
+    morePoints:["虚假平台里的收益数字，全是骗子随手改的","网恋没见面就谈钱，就是奔着你的本金来的","博彩平台“漏洞”是话术，没有稳赚的赌局","对方越完美体贴，越要警惕这是剧本"]
+  },
+  elder:{
+    name:"养老保健品诈骗", short:"养老诈骗",
+    hook:"骗子以“健康讲座”“免费领鸡蛋、领挂面”为幌子聚集老年人，编造“老中医”“特效抗癌神药”“养老床位原始股”等项目，把成本几十元的保健品吹成几千上万元的神药，或承诺“投资养老、月月分红”，哄骗老人取光毕生积蓄。",
+    points:["免费鸡蛋的背后，是几万块的“神药”","包治百病、见效神速的东西全是假药","承诺高息回报的“养老项目”就是非法集资"],
+    morePoints:["专家讲座讲得越神，背后的药越假","高息分红的养老项目，盯上的是你的养老钱","买药、投资前先问子女，一个电话就能拦住","“内部名额”“原始股”，全是圈钱的幌子"]
+  }
+};
+
+const AUDIENCES = {
+  student:{name:"青年学生", call:"各位同学",
+    extra:"你们花的每一分钱都是父母的血汗钱。一旦背上网贷还债的包袱，影响的不仅是生活费，还有学业和征信。拿不准，先问辅导员、问家长。"},
+  elder:{name:"中老年长辈", call:"叔叔阿姨",
+    extra:"您记不住没关系，凡是来电让您转账的，先给子女打个电话问一声。子女不会嫌您麻烦，骗子才最怕您和家人商量。"},
+  merchant:{name:"个体商户", call:"各位老板",
+    extra:"您进货、交租、发工资处处要用钱，骗子盯上的就是您账户里那笔周转资金。任何要求您向“指定账户”转账的消息，先挂电话、当面核实。"},
+  resident:{name:"社区居民", call:"街坊邻居",
+    extra:"把这条提醒转发到您的家族群、邻居群、业主群，就是在帮身边人守住钱袋子。一人提醒，全家平安。"}
+};
+
+const FORMS = {
+  moments:{name:"朋友圈文案"},
+  video:{name:"短视频口播稿"},
+  poster:{name:"海报标语"},
+  notice:{name:"社区通告"}
+};
+
+const TONES = {
+  standard:{name:"标准提醒版"},
+  dialect:{name:"方言口语版"},
+  brief:{name:"精简金句版"},
+  official:{name:"严肃通告版"}
+};
+
+/* ==================== 状态 ==================== */
+const state = { scene:"brush", aud:"student", form:"moments", tone:"standard" };
+
+/* ==================== 渲染选项 ==================== */
+function renderChips(){
+  const sg = document.getElementById("sceneGrid");
+  sg.innerHTML = "";
+  Object.entries(SCENES).forEach(([k,v])=>{
+    const b = document.createElement("button");
+    b.className = "scene-card" + (state.scene===k?" active":"");
+    const name = document.createElement("div");
+    name.className = "name";
+    name.textContent = v.name;
+    const tag = document.createElement("div");
+    tag.className = "tag";
+    tag.textContent = "高发类型：" + v.short;
+    b.appendChild(name);
+    b.appendChild(tag);
+    b.onclick = ()=>{ state.scene=k; renderChips(); renderMeta(); };
+    sg.appendChild(b);
+  });
+  buildChipRow("audChips", AUDIENCES, "aud");
+  buildChipRow("formChips", FORMS, "form");
+  buildChipRow("toneChips", TONES, "tone");
+}
+function buildChipRow(id, obj, key){
+  const box = document.getElementById(id);
+  box.innerHTML = "";
+  Object.entries(obj).forEach(([k,v])=>{
+    const b = document.createElement("button");
+    b.className = "chip" + (state[key]===k?" active":"");
+    b.textContent = v.name;
+    b.onclick = ()=>{ state[key]=k; renderChips(); renderMeta(); };
+    box.appendChild(b);
+  });
+}
+
+/* ==================== 文案生成核心 ==================== */
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function pickN(arr,n){ return shuffle(arr).slice(0,n); }
+
+/* 随机开场句（标准版） */
+const OPENERS = [
+  "又有人因为这个套路被骗了！",
+  "这条提醒，建议直接转发给家人。",
+  "最近同类警情明显增多，看到就是赚到。",
+  "骗子的套路，今天一次讲清楚。",
+  "96110 最近接到的报警，这类占了不小比例。",
+  "同样的话术，已经有人听第二遍了——因为他第一次信了。"
+];
+/* 随机结尾句 */
+const CLOSERS = [
+  "记住：你只要不转账，骗子就毫无办法。",
+  "钱转出去只要几分钟，追回来可能要几年。",
+  "转发一次，可能就帮一个人守住了积蓄。",
+  "拿不准的时候，打96110问一句，不丢人。",
+  "多一个人看到，就少一个人上当。",
+  "骗子不怕你骂他，就怕你不转账、还提醒别人。"
+];
+/* 方言版开场/结尾 */
+const OPENERS_DIALECT = [
+  "我说咱可真得留神，这事儿不新鲜！",
+  "前儿个又有人吃了这个亏，我给大伙念叨念叨。",
+  "这套路我都讲八百遍了，可总有人信啊！",
+  "听我一句，保准你不亏。"
+];
+const CLOSERS_DIALECT = [
+  "记住喽，钱袋子捂紧比啥都强。",
+  "拿不准就打96110，民警给你把主意。",
+  "别嫌麻烦，多问一句，就少赔一笔。",
+  "转给家里人看看，咱都别犯糊涂。"
+];
+/* 随机案例金额 */
+function randomCaseAmount(){
+  const base = [1800,2600,3500,4800,6800,8600,12000,15000,23000,38000,56000];
+  return pick(base).toLocaleString();
+}
+
+function buildDoc(){
+  const s = SCENES[state.scene], a = AUDIENCES[state.aud];
+  const form = state.form, tone = state.tone;
+  /* 每次从金句池（固定+额外）随机抽 3 条，保证每次不一样 */
+  const pool = s.points.concat(s.morePoints || []);
+  const P = pickN(pool, 3);
+  let lines = [];
+
+  /* ---- 精简金句版：只留骨头 ---- */
+  if(tone === "brief"){
+    if(form === "poster"){
+      lines.push(`【${s.short}高发预警】`);
+      lines.push("");
+      lines.push(P[0]);
+      lines.push(P[1]);
+      lines.push(P[2]);
+      lines.push("");
+      lines.push("反诈专线 96110");
+    } else {
+      lines.push(`${s.name}防范提醒`);
+      lines.push("");
+      lines.push(`· ${P[0]}`);
+      lines.push(`· ${P[1]}`);
+      lines.push(`· ${P[2]}`);
+      lines.push("");
+      lines.push(`遇可疑情况，请拨打 96110。`);
+    }
+    return lines.join("\n");
+  }
+
+  /* ---- 严肃通告版 ---- */
+  if(tone === "official"){
+    if(form === "notice"){
+      return [
+        `关于防范${s.name}的通告`,
+        "",
+        `近期，我辖区连续发生多起${s.name}案件，最高单笔损失达${randomCaseAmount()}元。作案手法为：${s.hook}`,
+        "",
+        `为切实保障人民群众财产安全，现提醒广大群众：`,
+        `一、${P[0]}；`,
+        `二、${P[1]}；`,
+        `三、${P[2]}。`,
+        "",
+        `凡接到陌生来电、点击陌生链接、下载可疑软件，请务必做到“三不”：不轻信、不透露、不转账。如有疑问，请立即拨打96110反诈专线咨询，或到就近派出所当面核实。`,
+        "",
+        `特此通告。`,
+        "",
+        `山东司法警官职业学院 保卫处`,
+        `2026年X月X日`
+      ].join("\n");
+    }
+    if(form === "poster"){
+      return [
+        `${s.name} 风险警示`,
+        "",
+        `${P[0]}`,
+        `——`,
+        `${P[1]}`,
+        `——`,
+        `${P[2]}`,
+        "",
+        `请广大群众提高警惕，谨防上当。`,
+        `咨询举报：96110`
+      ].join("\n");
+    }
+    /* 朋友圈 / 口播的严肃版 */
+    const head = form === "moments"
+      ? `【警方通报】${s.name}近期高发`
+      : `（民警严肃面对镜头）${s.name}案件近期在辖区高发，务必引起高度重视。`;
+    return [
+      head,
+      "",
+      `${s.hook}`,
+      "",
+      `警方郑重提示：`,
+      `一、${P[0]}；`,
+      `二、${P[1]}；`,
+      `三、${P[2]}。`,
+      "",
+      `凡因轻信上当受骗造成的损失，难以挽回。请广大群众相互转告，遇可疑情况立即拨打96110核实。`
+    ].join("\n");
+  }
+
+  /* ---- 方言口语版 ---- */
+  if(tone === "dialect"){
+    const say = {
+      moments:`${pick(OPENERS_DIALECT)}`,
+      video:`（民警拉家常语气）${a.call}，${pick(OPENERS_DIALECT)}`,
+      poster:`${s.short} 咱可得防着点`,
+      notice:`各位居民：最近咱辖区${s.short}冒头了，居委会跟大伙念叨念叨。`
+    }[form];
+
+    const body = {
+      moments:`骗子啥招呢？${s.hook}我跟您说，这就是挖个坑等您跳。`,
+      video:`骗子咋操作的呢？${s.hook}就等着您往里面砸钱呢。`,
+      poster:``,
+      notice:`骗子的套路是这样的：${s.hook}`
+    }[form];
+
+    const tips = form === "poster"
+      ? [`◆ ${P[0]}`, `◆ ${P[1]}`, `◆ ${P[2]}`]
+      : [`头一条，${P[0]}；`, `第二条，${P[1]}；`, `第三条，也是最要紧的，${P[2]}。`];
+
+    const end = `${pick(CLOSERS_DIALECT)}${a.extra}拿不准主意，就拨96110！`;
+
+    const out = [say, ""];
+    if(body) out.push(body, "");
+    out.push(...tips, "");
+    out.push(end);
+    return out.join("\n");
+  }
+
+  /* ---- 标准提醒版 ---- */
+  if(form === "moments"){
+    return [
+      `【反诈提醒】${s.name}`,
+      "",
+      pick(OPENERS),
+      "",
+      s.hook,
+      "",
+      `${a.call}，${a.extra}`,
+      "",
+      `请牢记三句话：`,
+      `● ${P[0]}`,
+      `● ${P[1]}`,
+      `● ${P[2]}`,
+      "",
+      `如遇可疑情况，请立即拨打反诈专线 96110，或到就近派出所核实。`,
+      pick(CLOSERS)
+    ].join("\n");
+  }
+
+  if(form === "video"){
+    return [
+      `【短视频口播稿 · 约30秒】`,
+      "",
+      `（镜头1：民警正脸出镜，语气严肃）`,
+      `“${a.call}，${pick(OPENERS)}”`,
+      "",
+      `（镜头2：切手机聊天记录 / 转账截图画面）`,
+      `“骗子是怎么操作的？${s.hook}”`,
+      "",
+      `（镜头3：切回民警，逐条强调）`,
+      `“只要记住三句话：`,
+      `第一，${P[0]}；`,
+      `第二，${P[1]}；`,
+      `第三，${P[2]}。”`,
+      "",
+      `（镜头4：屏幕大字出现 96110）`,
+      `“${pick(CLOSERS)}拿不准，就打96110。”`
+    ].join("\n");
+  }
+
+  if(form === "poster"){
+    const big = pick([P[0], P[1]]);
+    return [
+      `${s.short}高发预警`,
+      "",
+      big,
+      "",
+      `${P[0]}`,
+      `${P[1]}`,
+      `${P[2]}`,
+      "",
+      `—— 山东司法警官职业学院 宣 ——`,
+      `反诈咨询：96110`
+    ].join("\n");
+  }
+
+  /* notice 标准版 */
+  return [
+    `关于开展${s.name}防范宣传的通知`,
+    "",
+    `${a.call}：`,
+    "",
+    `近期，${s.name}案件多发，已有群众单笔损失${randomCaseAmount()}元。作案手法为：${s.hook}`,
+    "",
+    `为保护大家的财产安全，请务必注意以下三点：`,
+    `一、${P[0]}；`,
+    `二、${P[1]}；`,
+    `三、${P[2]}。`,
+    "",
+    `${a.extra}`,
+    "",
+    `如遇可疑情况，请拨打 96110 反诈专线咨询，或前往社区警务室、就近派出所核实。`,
+    "",
+    `山东司法警官职业学院 反诈宣讲团`,
+    `2026年X月X日`
+  ].join("\n");
+}
+
+/* ==================== 渲染结果 ==================== */
+let currentText = "";
+function renderMeta(){
+  const box = document.getElementById("metaPills");
+  box.innerHTML = `
+    <span class="meta-pill red">高发预警</span>
+    <span class="meta-pill">${SCENES[state.scene].name}</span>
+    <span class="meta-pill">面向${AUDIENCES[state.aud].name}</span>
+    <span class="meta-pill">${FORMS[state.form].name}</span>
+    <span class="meta-pill">${TONES[state.tone].name}</span>`;
+}
+
+function typewrite(finalText){
+  const doc = document.getElementById("doc");
+  currentText = finalText;
+  // 按行分块，逐行淡入，模拟生成过程
+  const lines = finalText.split("\n");
+  doc.innerHTML = "";
+  let i = 0;
+  const timer = setInterval(()=>{
+    if(i >= lines.length){
+      clearInterval(timer);
+      return;
+    }
+    const span = document.createElement("div");
+    span.textContent = lines[i];
+    if(i===0 && (lines[0].includes("通告")||lines[0].includes("提醒")||lines[0].includes("预警")||lines[0].includes("通知")||lines[0].includes("反诈"))){
+      span.className = "doc-title";
+      span.innerHTML = span.innerHTML.replace(/96110/g,'<span class="doc-hotline">96110</span>');
+    } else {
+      span.style.minHeight = "1.65em";
+      span.innerHTML = span.innerHTML || span.textContent.replace(/96110/g,'<span class="doc-hotline">96110</span>');
+    }
+    doc.appendChild(span);
+    i++;
+  }, 45);
+}
+
+function regenerate(withAnim){
+  renderMeta();
+  const text = buildDoc();
+  if(withAnim){
+    typewrite(text);
+  } else {
+    const doc = document.getElementById("doc");
+    doc.innerHTML = "";
+    text.split("\n").forEach((ln,idx)=>{
+      const div = document.createElement("div");
+      if(idx===0 && /通告|提醒|预警|通知|反诈|防范|高发/.test(ln)){
+        div.className = "doc-title";
+      }
+      div.textContent = ln;
+      div.innerHTML = div.innerHTML.replace(/96110/g,'<span class="doc-hotline">96110</span>');
+      doc.appendChild(div);
+    });
+    currentText = text;
+  }
+}
+
+/* ==================== 事件 ==================== */
+const memeOverlay = document.getElementById("memeOverlay");
+function showMeme(){ memeOverlay.classList.add("show"); }
+function hideMeme(){ memeOverlay.classList.remove("show"); }
+memeOverlay.addEventListener("click", hideMeme);
+
+const genSound = document.getElementById("genSound");
+
+async function tryAIGenerate(){
+  try{
+    const ctrl = new AbortController();
+    const timer = setTimeout(()=>ctrl.abort(), 15000);
+    const r = await fetch("/api/generate", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({scene:state.scene, aud:state.aud, form:state.form, tone:state.tone}),
+      signal: ctrl.signal
+    });
+    clearTimeout(timer);
+    if(!r.ok) return null;
+    const data = await r.json();
+    return data.text || null;
+  }catch(e){ return null; }
+}
+
+document.getElementById("genBtn").onclick = async function(){
+  this.disabled = true;
+  const old = this.textContent;
+  this.textContent = "正在生成文案…";
+  showMeme();
+  try{
+    genSound.currentTime = 0;
+    const p = genSound.play();
+    if(p && p.catch) p.catch(()=>{});
+  }catch(e){}
+
+  const aiText = await tryAIGenerate();
+  const finalText = aiText || buildDoc();
+  typewrite(finalText);
+
+  const doneAt = Math.max(2200, finalText.split("\n").length * 45 + 400);
+  setTimeout(()=>{
+    hideMeme();
+    this.disabled = false;
+    this.textContent = old;
+    showToast(aiText ? "AI 文案已生成，可直接复制" : "已生成（本地模板版），可直接复制");
+  }, doneAt);
+};
+
+document.getElementById("copyBtn").onclick = function(){
+  const btn = this;
+  const done = ()=>{
+    btn.classList.add("done");
+    btn.childNodes[btn.childNodes.length-1].textContent = "已复制";
+    showToast("已复制到剪贴板");
+    setTimeout(()=>{
+      btn.classList.remove("done");
+      btn.childNodes[btn.childNodes.length-1].textContent = "复制文案";
+    }, 2000);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(currentText).then(done).catch(()=>fallbackCopy(done));
+  } else {
+    fallbackCopy(done);
+  }
+};
+function fallbackCopy(cb){
+  const ta = document.createElement("textarea");
+  ta.value = currentText;
+  document.body.appendChild(ta);
+  ta.select();
+  try{ document.execCommand("copy"); }catch(e){}
+  document.body.removeChild(ta);
+  cb();
+}
+
+let toastTimer = null;
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+
+/* ==================== 初始化 ==================== */
+renderChips();
+regenerate(false);
+
+/* 点击校徽进入系统（替代原"开始使用"按钮） */
+const logoWrap = document.getElementById("logoWrap");
+logoWrap.addEventListener("click", ()=>{
+  document.getElementById("welcome").classList.add("hide");
+});
+/* 触摸设备：先呈现 hover 发光效果 */
+logoWrap.addEventListener("touchstart", ()=>logoWrap.classList.add("hover"), {passive:true});
+logoWrap.addEventListener("touchend", ()=>{
+  setTimeout(()=>logoWrap.classList.remove("hover"), 900);
+});
+
+/* 移除右下角"豆包 AI 生成"水印浮标（平台注入，若在同文档内则自动清除） */
+(function removeWatermark(){
+  function sweep(){
+    const candidates = document.querySelectorAll('body > div, body > *');
+    candidates.forEach(el=>{
+      try{
+        const txt = (el.textContent||'').trim();
+        if(/^豆包\s*AI\s*生成$/.test(txt) && txt.length < 15){
+          const cs = getComputedStyle(el);
+          if(cs.position === 'fixed' || cs.position === 'absolute'){
+            el.remove();
+          }
+        }
+      }catch(e){}
+    });
+  }
+  sweep();
+  const mo = new MutationObserver(sweep);
+  mo.observe(document.documentElement, {childList:true, subtree:true});
+})();
+</script>
+</body>
+</html>
